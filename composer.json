@@ -1,0 +1,12 @@
+{
+    "name": "opensums/event-data-wp",
+    "description": "Event data consolidator plugin for WordPress",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Paul OpenSums",
+            "email": "paul@opensums.com"
+        }
+    ],
+    "require": {}
+}

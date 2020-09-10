@@ -1,0 +1,7 @@
+# .gitignore
+
+# Local composer.phar
+composer
+
+# Composer packages
+vendor
