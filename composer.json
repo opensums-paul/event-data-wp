@@ -8,5 +8,18 @@
             "email": "paul@opensums.com"
         }
     ],
-    "require": {}
+    "autoload": {
+        "psr-4": {
+            "EventData\\": "event-data/src"
+        }
+    },
+    "scripts": {
+        "unit-tests": "./phpunit -c unit-tests.xml"
+    },
+    "require": {
+        "php": ">=7.1.0"
+    },
+    "require-dev": {
+        "10up/wp_mock": "^0.4.2"
+    }
 }

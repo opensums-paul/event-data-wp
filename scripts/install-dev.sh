@@ -1,10 +1,11 @@
 #!/bin/bash
 
 echo
-echo "Deleting existing Composer and vendor files -----------------------------"
+echo "Deleting existing files -------------------------------------------------"
 echo
 
 unlink composer
+unlink phpunit
 rm -rf vendor
 
 echo
