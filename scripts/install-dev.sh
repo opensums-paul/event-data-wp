@@ -2,12 +2,14 @@
 
 echo
 echo "Deleting existing Composer and vendor files -----------------------------"
+echo
 
 unlink composer
 rm -rf vendor
 
 echo
 echo "Installing Composer -----------------------------------------------------"
+echo
 
 EXPECTED_CHECKSUM="$(wget -q -O - https://composer.github.io/installer.sig)"
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -27,12 +29,23 @@ rm composer-setup.php
 mv composer.phar composer
 ./composer --version
 
+
+echo
+echo "Installing PHPUnit ------------------------------------------------------"
+echo
+
+wget -O phpunit https://phar.phpunit.de/phpunit-7.phar
+chmod +x phpunit
+./phpunit --version
+
 echo
 echo "Running ./composer install ----------------------------------------------"
+echo
 
 ./composer install
 
 echo
 echo "Done --------------------------------------------------------------------"
 echo
+
 exit $RESULT

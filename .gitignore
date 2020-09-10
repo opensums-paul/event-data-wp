@@ -1,7 +1,8 @@
 # .gitignore
 
-# Local composer.phar
+# Local Composer and PHPUnit
 composer
+phpunit
 
 # Composer packages
 vendor
