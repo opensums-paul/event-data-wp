@@ -39,7 +39,7 @@ spl_autoload_register(function ($class) {
     }
 });
 
-(new Plugin(__DIR__))->load();
+(new Plugin(__FILE__))->load();
 
 return;
 

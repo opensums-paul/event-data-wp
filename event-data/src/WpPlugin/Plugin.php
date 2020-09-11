@@ -6,6 +6,7 @@
  * @copyright  Copyright 2020 OpenSums https://opensums.com/
  * @license    MIT
  */
+declare(strict_types=1);
 
 namespace EventData\WpPlugin;
 
@@ -45,12 +46,12 @@ abstract class Plugin {
 
     // -------------------------------------------------------------------------
 
-    final public function __construct(string $pluginDir) {
-        $this->pluginDir = $pluginDir;
-        $this->pluginUrl = plugin_dir_url($pluginDir);
+    final public function __construct(string $pluginFile) {
+        $this->pluginDir = dirname($pluginFile);
+        $this->pluginUrl = plugin_dir_url($pluginFile);
         $this->assetsUrl = $this->pluginUrl . $this->assetsUrl;
 
-        $this->templateDir = realpath($pluginDir . $this->templateDir);
+        $this->templateDir = realpath($this->pluginDir . $this->templateDir);
 
         $this->templateGlobals = [
             'plugin' => [
@@ -72,11 +73,15 @@ abstract class Plugin {
         }
     }
 
-    public function getName() {
+    public function getAssetsUrl($file = null): string {
+        return $this->assetsUrl . "/$file";
+    }
+
+    public function getName(): string {
         return $this->name;
     }
 
-    public function getVersion() {
+    public function getVersion(): string {
         return $this->version;
     }
 

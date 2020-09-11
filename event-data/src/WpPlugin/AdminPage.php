@@ -6,11 +6,11 @@ namespace EventData\WpPlugin;
 
 abstract class AdminPage {
 
+    /** @var array[] JavaScript and CSS assets to load. */
+    protected $assets = [];
+
     /** @var string The capability required to access this page. */
     protected $capability = 'manage_options';
-
-    /** @var Plugin The parent plugin (set by the constructor). */
-    protected $plugin;
 
     /**
      * @var string The text to be shown in the admin menu (if not set will be
@@ -29,6 +29,9 @@ abstract class AdminPage {
      *             not set will be based on the plugin name by the constructor).
      */
     protected $pageTitle;
+
+    /** @var Plugin The parent plugin (set by the constructor). */
+    protected $plugin;
 
     /** @var string The name of the template to render. */
     protected $template;
@@ -66,13 +69,34 @@ abstract class AdminPage {
 
         // Register admin hooks.
         $this->addMenuEntry();
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+        add_action('admin_enqueue_scripts', [$this, 'addAssets']);
     }
 
-    public function enqueue_admin_scripts($hook) {
-        if ('settings_page_api-data-admin' != $hook) return;
-        wp_enqueue_style( 'tabulator-css', plugin_dir_url( dirname(__FILE__) ) . 'assets/tabulator.min.css');
-        wp_enqueue_script( 'tabulator', plugin_dir_url( dirname(__FILE__) ) . 'assets/tabulator.min.js');
+    /**
+     * Add page assets.
+     *
+     * Invoked as a callback for any admin page.
+     *
+     * @param string $slug The full slug for the current admin page.
+     */
+    public function addAssets(string $slug): void {
+        // Only add the scripts if we look like we are on the right page (note
+        // that the hook for a settings page starts with `settings_page`).
+        if (substr($slug, -strlen($this->pageSlug)) !== $this->pageSlug) return;
+
+        foreach ($this->assets as $asset) {
+            switch ($asset[0]) {
+                case 'style':
+                    wp_enqueue_style($asset[1], $this->plugin->getAssetsUrl($asset[2]));
+                break;
+
+                case 'script':
+                    wp_enqueue_script($asset[1], $this->plugin->getAssetsUrl($asset[2]));
+                break;
+
+                default:
+            }
+        }
     }
 
     /**

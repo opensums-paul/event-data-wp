@@ -17,6 +17,12 @@ use EventData\WpPlugin\AdminPage;
  */
 class SettingsPage extends AdminPage {
 
+    /** @var array[] JavaScript and CSS assets to load. */
+    protected $assets = [
+        [ 'style', 'tabulator-css', 'tabulator.min.css' ],
+        [ 'script', 'tabulator', 'tabulator.min.js' ],
+    ];
+
     /** @var string The parent for the entry in the Admin menu. */
     protected $menuParent = 'settings';
 
