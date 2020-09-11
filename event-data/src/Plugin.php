@@ -29,6 +29,9 @@ class Plugin extends WpPlugin\Plugin {
     /** @var string Current version. */
     protected $version = '0.1.0-dev';
 
-    protected $adminPages = [ SettingsPage::class ];
+    protected $adminPages = [
+        DataPage::class,
+        SettingsPage::class,
+    ];
     // -------------------------------------------------------------------------
 };
