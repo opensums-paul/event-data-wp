@@ -17,9 +17,6 @@ abstract class Plugin {
     /** @var string Name of the admin class (optional). */
     protected $adminClass;
 
-    /** @var string Path to the plugin's templates (optional). */
-    protected $templatePath;
-
     /** @var string Plugin human name. */
     protected $name;
 
@@ -31,21 +28,47 @@ abstract class Plugin {
 
     // -------------------------------------------------------------------------
 
+    /** @var string Path to the plugin's assets - prefixed by the constructor. */
+    protected $assetsUrl = '/assets';
+
+    /** @var string Path to the plugin - set by the constructor. */
+    protected $pluginDir;
+
+    /** @var string URL to the plugin - set by the constructor. */
+    protected $pluginUrl;
+
+    /** @var string Path to the plugin's templates - prefixed by the constructor. */
+    protected $templateDir = '/templates';
+
     /** @var mixed[] Global variables for templates. */
     protected $templateGlobals = [];
 
     // -------------------------------------------------------------------------
 
-    final public function __construct() {
-        if ($this->templatePath) {
-            $this->templatePath = realpath($this->templatePath);
-            $this->templateGlobals = [
-                'plugin' => [
-                    'name' => $this->name,
-                    'slug' => $this->slug,
-                    'version' => $this->version,
-                ],
-            ];
+    final public function __construct(string $pluginDir) {
+        $this->pluginDir = $pluginDir;
+        $this->pluginUrl = plugin_dir_url($pluginDir);
+        $this->assetsUrl = $this->pluginUrl . $this->assetsUrl;
+
+        $this->templateDir = realpath($pluginDir . $this->templateDir);
+
+        $this->templateGlobals = [
+            'plugin' => [
+                'name' => $this->name,
+                'slug' => $this->slug,
+                'version' => $this->version,
+            ],
+        ];
+    }
+
+    /**
+     * Add entries to the Admin menu.
+     *
+     * Invoked as a callback (when?).
+     */
+    public function addAdminMenuEntries(): void {
+        foreach ($this->adminPages as $page) {
+            (new $page($this));
         }
     }
 
@@ -65,17 +88,13 @@ abstract class Plugin {
     final public function load() {
         $this->childLoad();
 
-        // Load the module admin hooks if on an admin page.
-        $cls = $this->adminClass;
-        if (is_admin() && $cls) {
-            (new $cls($this))->load();
-        }
+        add_action('admin_menu', [$this, 'addAdminMenuEntries']);
     }
 
-    final public function render($template, $vars) {
+    public function render($template, $vars) {
         extract($this->templateGlobals);
         extract($vars);
-        require("{$this->templatePath}/templates/{$template}.tpl.php");
+        require("$this->templateDir/$template.tpl.php");
     }
 
     /**

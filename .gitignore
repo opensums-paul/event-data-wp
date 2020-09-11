@@ -1,8 +1,7 @@
 # .gitignore
 
-# Local Composer and PHPUnit
-composer
-phpunit
+# Local PHPUnit
+/tests/phpunit/phpunit
 
 # Composer packages
-vendor
+/vendor

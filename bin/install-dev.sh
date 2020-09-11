@@ -5,8 +5,11 @@ echo "Deleting existing files -------------------------------------------------"
 echo
 
 unlink composer
-unlink phpunit
+unlink tests/phpunit/phpunit
 rm -rf vendor
+
+if ( false )
+then
 
 echo
 echo "Installing Composer -----------------------------------------------------"
@@ -30,20 +33,30 @@ rm composer-setup.php
 mv composer.phar composer
 ./composer --version
 
+fi
 
 echo
 echo "Installing PHPUnit ------------------------------------------------------"
 echo
 
-wget -O phpunit https://phar.phpunit.de/phpunit-7.phar
-chmod +x phpunit
-./phpunit --version
+wget -O tests/phpunit/phpunit https://phar.phpunit.de/phpunit-7.phar
+chmod +x tests/phpunit/phpunit
+tests/phpunit/phpunit --version
 
 echo
 echo "Running ./composer install ----------------------------------------------"
 echo
 
-./composer install
+composer install
+
+# echo
+# echo "Installing WP-CLI -------------------------------------------------------"
+# echo
+
+# curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+# chmod +x wp-cli.phar
+# mv wp-cli.phar ./wp
+# ./wp --info
 
 echo
 echo "Done --------------------------------------------------------------------"

@@ -6,5 +6,6 @@ Event data consolidator plugin for WordPress.
 
 Install for development.
 ```console
-$ bash ./scripts/install-dev.sh
+$ composer install-dev
 ```
+phpunit

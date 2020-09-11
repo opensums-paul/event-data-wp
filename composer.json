@@ -14,7 +14,10 @@
         }
     },
     "scripts": {
-        "unit-tests": "./phpunit -c unit-tests.xml"
+        "install-dev": "bash bin/install-dev.sh",
+        "unit-tests": "tests/phpunit/phpunit -c tests/phpunit/unit-tests.xml",
+        "wp-multisite-tests": "tests/phpunit/phpunit -c tests/phpunit/wp-multisite-tests.xml",
+        "wp-tests": "tests/phpunit/phpunit -c tests/phpunit/wp-tests.xml"
     },
     "require": {
         "php": ">=7.1.0"
