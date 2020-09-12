@@ -19,7 +19,7 @@ $tickets = $api->getEventTickets('ev_410363');
 
 <div class="wrap">
 
-<?php settings_errors($messagesSlug) ?>
+<?php settings_errors() ?>
 
 <h1><?php echo get_admin_page_title() ?></h1>
 

@@ -22,7 +22,8 @@ class DataPage extends AdminPage {
         [ 'script', 'tabulator', 'tabulator.min.js' ],
     ];
 
-    protected $menuParent = 'settings';
+    // Add a new menu section.
+    protected $menuParent = null;
 
     protected $pageSlug = 'data';
 

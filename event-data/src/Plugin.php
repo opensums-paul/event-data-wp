@@ -32,6 +32,7 @@ class Plugin extends WpPlugin\Plugin {
     protected $adminPages = [
         DataPage::class,
         SettingsPage::class,
+        SecretsPage::class,
     ];
     // -------------------------------------------------------------------------
 };

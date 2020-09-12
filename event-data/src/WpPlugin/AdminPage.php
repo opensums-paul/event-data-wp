@@ -12,6 +12,8 @@ abstract class AdminPage {
     /** @var string The capability required to access this page. */
     protected $capability = 'manage_options';
 
+    protected $icon;
+
     /**
      * @var string The text to be shown in the admin menu (if not set will be
      *             based on the plugin name by the constructor).
@@ -32,6 +34,9 @@ abstract class AdminPage {
 
     /** @var Plugin The parent plugin (set by the constructor). */
     protected $plugin;
+
+    protected $sections = [];
+    protected $sectionsTemplate;
 
     /** @var string The name of the template to render. */
     protected $template;
@@ -70,6 +75,7 @@ abstract class AdminPage {
         // Register admin hooks.
         $this->addMenuEntry();
         add_action('admin_enqueue_scripts', [$this, 'addAssets']);
+        add_action('admin_init', [$this, 'addSections']);
     }
 
     /**
@@ -110,7 +116,7 @@ abstract class AdminPage {
         }
 
         $this->plugin->render($this->template, array_merge($this->templateVars, [
-            'messagesSlug' => $this->plugin->slugify('messages'),
+            'messagesSlug' => "$this->pageSlug-messages",
         ]));
     }
 
@@ -133,40 +139,41 @@ abstract class AdminPage {
         switch ($this->menuParent) {
             case 'settings':
                 call_user_func_array('add_options_page', $args);
-                break;
-            default:
+            break;
+
+            case null:
+                if ($this->icon !== null) {
+                    $args[] = $this->icon;
+                }
                 call_user_func_array('add_menu_page', $args);
+            break;
+
+            default:
+                array_unshift($args, $this->menuParent);
+                call_user_func_array('add_submenu_page', $args);
         }
+    }
+
+    protected function getSections() {
+        return [];
     }
 
     // Refactor after here -------------------------------------------------------------------------
 
     protected $settingsGroups = [];
     protected $groups = [];
-    protected $sections;
 
-    /**
-     *
-     * @param mixed[] $sections An array of sections. Each section is an array:
-     * - `string 'id'` The id for the admin page section.
-     * - `string 'title'` HTML for the section's title.
-     */
-    public function addSections(array $sections = []): self {
-        $this->sections = $sections;
-        add_action('admin_init', [$this, 'addSectionsCallback']);
-        add_action('admin_init', [$this, 'addFieldsCallback']);
-        return $this;
-    }
-
-    public function addSectionsCallback(): void {
+    public function addSections(): void {
+        $this->sections = $this->getSections();
         foreach ($this->sections as $section) {
             add_settings_section(
                 $section['id'],
                 $section['title'] ?? null,
                 [$this, 'renderSection'],
-                $this->settings['pageSlug']
+                $this->pageSlug
             );
         }
+        $this->addFields();
     }
 
     /**
@@ -175,23 +182,22 @@ abstract class AdminPage {
      * - `string 'id'` The id for the admin page section.
      * - `string 'title'` HTML for the section's title.
      */
-    public function addFieldsCallback() {
+    protected function addFields() {
         foreach ($this->sections ?? [] as $section) {
             foreach ($section['fields'] ?? [] as $field) {
                 // Group names by option group and prefix.
-                $group = $field['group'] = $field['group'] ?? $section['group'];
+                $group = $field['option'] = $field['option'] ?? $section['option'];
                 $this->groups[$group] = true;
                 $group = $this->plugin->slugify($group, '_');
-                $field['key'] = $field['key'] ?? $field['id'];
                 $field['name'] = "{$group}[{$field['key']}]";
 
                 // Use label_for in preference to id (since WP 4.6).
-                $field['label_for'] = $field['id'] = "{$group}-{$field['id']}";
+                $field['label_for'] = $field['id'] = "{$group}-{$field['key']}";
                 add_settings_field(
                     $field['id'],
                     $field['label'],
                     [$this, 'renderField'],
-                    $this->settings['pageSlug'],
+                    $this->pageSlug,
                     $section['id'],
                     $field
                 );
@@ -215,7 +221,7 @@ abstract class AdminPage {
                     ]
                 );
             } else {
-                register_setting($this->settings['pageSlug'], $optionName);
+                register_setting($this->pageSlug, $optionName);
             }
 
             $this->values[$group] = get_option($optionName);
@@ -226,8 +232,8 @@ abstract class AdminPage {
      * @see https://www.smashingmagazine.com/2016/04/three-approaches-to-adding-configurable-fields-to-your-plugin/
      */
     public function renderField($field) {
-        if (is_array($this->values[$field['group']])) {
-            $value = $this->values[$field['group']][$field['key']] ?? null;
+        if (is_array($this->values[$field['option']])) {
+            $value = $this->values[$field['option']][$field['key']] ?? null;
         } else {
             $value = null;
         }
@@ -293,7 +299,11 @@ abstract class AdminPage {
         }
     }
 
+    /**
+     * $section is an array with keys `id`, `title` and `callback`.
+     */
     public function renderSection($section) {
-        $this->plugin->render($this->settings['sectionTemplate'], array_merge($this->templateVars, $section));
+        if ($this->sectionsTemplate === null) return;
+        $this->plugin->render($this->sectionsTemplate, array_merge($this->templateVars, $section));
     }
 }
