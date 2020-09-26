@@ -1,44 +1,24 @@
 <?php
 /**
- * This file is part of the Scherzo application framework.
+ * This file is part of the Event Data plugin for WordPress™.
  *
- * @link      https://github.com/paulbloomfield-uk/scherzo
- * @license   [MIT](https://github.com/paulbloomfield-uk/scherzo/blob/master/LICENSE).
- * @copyright Copyright © 2017 [Paul Bloomfield](https://github.com/paulbloomfield-uk).
-**/
+ * @link      https://github.com/opensums/event-data-wp
+ * @package   event-data-wp/wp-plugin
+ * @copyright [OpenSums](https://opensums.com/)
+ * @license   MIT
+ */
+
+declare(strict_types=1);
 
 namespace EventData\WpPlugin;
 
-use Scherzo\Container\ContainerException;
-use Scherzo\Container\ContainerNotFoundException;
-
-/**
- * PSR-11 compliant container.
-**/
-// class Container implements \Psr\Container\ContainerInterface {
 class Container {
 
     /** @var array Entry definitions. */
-    protected $_definitions = [];
+    protected $definitions = [];
 
-    /**
-     * Magic method to lazy-load an entry.
-     *
-     * @param string $id Identifier of the entry to get.
-     *
-     * @throws ContainerNotFoundException  No entry was found for this identifier.
-     *
-     * @return mixed The value of the property.
-    **/
-    public function __get(string $id) {
-        if (array_key_exists($id, $this->_definitions)) {
-            return $this->load($id);
-        }
-        throw new ContainerNotFoundException([
-            'Entry :id does not exist in this container', [
-                ':id' => $id,
-            ]]);
-    }
+    /** @var array Entries. */
+    protected $entries = [];
 
     /**
      * Define an entry or entries for lazy-loading.
@@ -50,10 +30,10 @@ class Container {
     **/
     public function define($id, $definition = null) : self {
         if (is_array($id)) {
-            $this->_definitions = array_merge($this->_definitions, $id);
+            $this->definitions = array_merge($this->definitions, $id);
             return $this;
         }
-        $this->_definitions[$id] = $definition;
+        $this->definitions[$id] = $definition;
         return $this;
     }
 
@@ -68,12 +48,11 @@ class Container {
      * @return mixed The entry.
     **/
     public function get($id) {
-        // Return the entry if it exists.
-        if (property_exists($this, $id)) {
-            return $this->$id;
+        // Load the entry if not already loaded.
+        if (!array_key_exists($id, $this->entries)) {
+            $this->load($id);
         }
-        // Otherwise try to lazy-load it.
-        return $this->__get($id);
+        return $this->entries[$id];
     }
 
     /**
@@ -87,8 +66,8 @@ class Container {
      * @return bool
     **/
     public function has($id) {
-        return $id !== '_definitions' && property_exists($this, $id)
-            || array_key_exists($id, $this->_definitions);
+        return array_key_exists($id, $this->definitions)
+            || array_key_exists($id, $this->entries);
     }
 
     /**
@@ -107,37 +86,38 @@ class Container {
         }
 
         // Find the defintion.
-        if (!array_key_exists($id, $this->_definitions)) {
-            throw new ContainerNotFoundException([
-                'Entry ":id" has not been defined in this container', [
+        if (!array_key_exists($id, $this->definitions)) {
+            throw new \Exception(strtr(
+                __('Entry ":id" has not been defined in this container', 'event-data'), [
                     ':id' => $id,
-                ]]);
+                ]
+            ));
         }
-        $definition = $this->_definitions[$id];
+
+        $definition = $this->definitions[$id];
 
         // Check for an illegal entry id.
         if ($asId === '_definitions') {
-            throw new ContainerException([
-                'Cannot create a container entry with the id ":id"', [
-                    ':id' => $asId,
-                ]]);
-        }
-
-        $entry = $this->loadDefinition($definition, $asId);
-
-        if ($asId === null) {
-            return $entry;
+            throw new \Exception(strtr(
+                __('Cannot create a container entry with the id ":id"', 'event-data'), [
+                    ':id' => $id,
+                ]
+            ));
         }
 
         try {
-            $this->$asId = $entry;
+            $entry = $this->loadDefinition($definition, $asId);
         } catch (\Throwable $error) {
-            throw new ContainerException([
-                'Cannot create a container entry with the id ":id"', [
-                    ':id' => $asId,
-                ]]);
+            throw new \Exception(strtr(
+                __('Cannot create a container entry with the id ":id"', 'event-data'), [
+                    ':id' => $id,
+                ]
+            ));
         }
-        return $entry;
+
+        if ($asId === null) return $entry;
+
+        $this->entries[$asId] = $entry;
     }
 
     /**
@@ -165,7 +145,7 @@ class Container {
             return new $definition($this, $asId);
         }
 
-        // Load anythuing else.
+        // Load anything else.
         return $definition;
     }
 }
