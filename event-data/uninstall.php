@@ -1,6 +1,12 @@
 <?php
-
 /**
+ * This file is part of the Event Data plugin for WordPress™.
+ *
+ * @link      https://github.com/opensums/event-data-wp
+ * @package   event-data-wp
+ * @copyright [OpenSums](https://opensums.com/)
+ * @license   MIT
+ *
  * Fired when the plugin is uninstalled.
  *
  * When populating this file, consider the following flow
@@ -16,5 +22,13 @@
 
 // If uninstall not called from WordPress, then exit.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	exit;
+    exit;
+}
+
+// Delete all options.
+global $wpdb;
+$results = $wpdb->get_results("SELECT option_name FROM {$wpdb->prefix}options WHERE option_name LIKE 'event_data%'", ARRAY_N);
+
+foreach ($results as $result) {
+    delete_option($result[0]);
 }
