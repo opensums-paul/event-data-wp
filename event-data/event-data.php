@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The plugin bootstrap file
  *
@@ -22,6 +21,14 @@
  * License URI:       https://github.com/opensums/event-data-wp/LICENSE.md
  * Text Domain:       event-data
  * Domain Path:       /languages
+ */
+/**
+ * This file is part of the Event Data plugin for WordPress™.
+ *
+ * @link      https://github.com/opensums/event-data-wp
+ * @package   event-data-wp
+ * @copyright [OpenSums](https://opensums.com/)
+ * @license   MIT
  */
 
 namespace EventData;
