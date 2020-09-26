@@ -7,6 +7,8 @@
  * @copyright [OpenSums](https://opensums.com/)
  * @license   MIT
  */
+
+declare(strict_types=1);
 ?>
 
 <?php if ($id === 'intro'): ?>

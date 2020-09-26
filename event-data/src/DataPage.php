@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of the API Data plugin for WordPress™.
  *
@@ -8,6 +7,8 @@
  * @copyright [OpenSums](https://opensums.com/)
  * @license   MIT
  */
+
+declare(strict_types=1);
 
 namespace EventData;
 

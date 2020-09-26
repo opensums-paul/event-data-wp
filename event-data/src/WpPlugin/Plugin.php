@@ -1,11 +1,13 @@
 <?php
 /**
- * This file is part of the OpenSums WpPlugin framework.
+ * This file is part of the Event Data plugin for WordPress™.
  *
- * @package    event-data-wp-plugin
- * @copyright  Copyright 2020 OpenSums https://opensums.com/
- * @license    MIT
+ * @link      https://github.com/opensums/event-data-wp
+ * @package   event-data-wp/wp-plugin
+ * @copyright [OpenSums](https://opensums.com/)
+ * @license   MIT
  */
+
 declare(strict_types=1);
 
 namespace EventData\WpPlugin;

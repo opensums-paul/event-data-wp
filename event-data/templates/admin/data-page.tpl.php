@@ -8,6 +8,8 @@
  * @license   MIT
  */
 
+declare(strict_types=1);
+
 $span = '<span style="font-family: Consolas, Monaco, monospace; background: rgba(0,0,0,0.07); padding: 0 4px;">';
 $sc1 = '[tt-plus]';
 
@@ -17,6 +19,7 @@ $api = new \EventData\TicketTailor\Api([
 ]);
 $data = $api->getEvents();
 $tickets = $api->getEventTickets('ev_410363');
+
 ?>
 
 <div class="wrap">
@@ -91,7 +94,8 @@ Use the shortcode <?php echo($span.$sc1) ?></span> to do something.
 
 <div id="tickets-table">Table goes here</div>
 <pre>
-<?php echo(json_encode($tickets, JSON_PRETTY_PRINT)); ?>
+<?php /* echo(json_encode($tickets, JSON_PRETTY_PRINT)); */ ?>
+<?php print_r($results); ?>
 </pre>
 <script>
 //define data array
