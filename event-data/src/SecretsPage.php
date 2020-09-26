@@ -36,7 +36,7 @@ class SecretsPage extends AdminPage {
                 // This is prefixed and used as the key in the wp_options table.
                 'option' => 'secrets',
                 // Prefixed and used as the section element's id.
-                'id' => 'ticket-tailor-settings',
+                'id' => 'event-data-settings',
                 'title' => __('Ticket Tailor settings', 'event-data'),
                 'fields' => [
                     [
@@ -44,6 +44,7 @@ class SecretsPage extends AdminPage {
                         'key' => 'ticket-tailor-api-key',
                         'label' => __('API Key', 'event-data'),
                         'placeholder' => __('API Key', 'event-data'),
+                        'supplemental' => __('Create a key in the ticket tailor dashboard', 'event-data'),
                         'size' => 48,
                     ],
                 ],

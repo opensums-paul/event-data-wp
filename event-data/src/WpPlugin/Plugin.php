@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace EventData\WpPlugin;
 
+use EventData\WpPlugin\Container;
+
 /**
  * Base class for a WordPress plugin.
  */
@@ -32,6 +34,11 @@ abstract class Plugin {
     /** @var string Path to the plugin's assets - prefixed by the constructor. */
     protected $assetsUrl = '/assets';
 
+    protected $container;
+
+    /** @var string[] Options groups. */
+    protected $optionsGroups = [];
+
     /** @var string Path to the plugin - set by the constructor. */
     protected $pluginDir;
 
@@ -46,9 +53,11 @@ abstract class Plugin {
 
     // -------------------------------------------------------------------------
 
-    final public function __construct(string $pluginFile) {
-        $this->pluginDir = dirname($pluginFile);
-        $this->pluginUrl = plugin_dir_url($pluginFile);
+    final public function __construct($container) {
+        $this->container = $container;
+        $this->pluginDir = $container->get('basedir');
+
+        $this->pluginUrl = \plugin_dir_url($this->pluginDir.'/.');
         $this->assetsUrl = $this->pluginUrl . $this->assetsUrl;
 
         $this->templateDir = realpath($this->pluginDir . $this->templateDir);
@@ -69,7 +78,7 @@ abstract class Plugin {
      */
     public function addAdminMenuEntries(): void {
         foreach ($this->adminPages as $page) {
-            (new $page($this));
+            (new $page($this->container));
         }
     }
 
@@ -92,8 +101,7 @@ abstract class Plugin {
      */
     final public function load() {
         $this->childLoad();
-
-        add_action('admin_menu', [$this, 'addAdminMenuEntries']);
+        \add_action('admin_menu', [$this, 'addAdminMenuEntries']);
     }
 
     public function render($template, $vars) {

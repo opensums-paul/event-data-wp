@@ -22,6 +22,8 @@ class DataPage extends AdminPage {
         [ 'script', 'tabulator', 'tabulator.min.js' ],
     ];
 
+    // protected $capability = 'event_data_view_data';
+
     // Add a new menu section.
     protected $menuParent = null;
 

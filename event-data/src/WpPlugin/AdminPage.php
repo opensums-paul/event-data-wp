@@ -51,9 +51,11 @@ abstract class AdminPage {
      *
      * @param Plugin The parent plugin.
      */
-    public function __construct($plugin) {
-        // Save the plugin in case it is needed later.
-        $this->plugin = $plugin;
+    public function __construct($container) {
+        // Save the dependencies.
+        $this->container = $container;
+
+        $plugin = $container->get('plugin');
 
         // Prefix the page slug with the plugin slug.
         $this->pageSlug = $plugin->slugify($this->pageSlug ?? 'settings');
@@ -90,14 +92,16 @@ abstract class AdminPage {
         // that the hook for a settings page starts with `settings_page`).
         if (substr($slug, -strlen($this->pageSlug)) !== $this->pageSlug) return;
 
+        $plugin = $this->container->get('plugin');
+
         foreach ($this->assets as $asset) {
             switch ($asset[0]) {
                 case 'style':
-                    wp_enqueue_style($asset[1], $this->plugin->getAssetsUrl($asset[2]));
+                    wp_enqueue_style($asset[1], $plugin->getAssetsUrl($asset[2]));
                 break;
 
                 case 'script':
-                    wp_enqueue_script($asset[1], $this->plugin->getAssetsUrl($asset[2]));
+                    wp_enqueue_script($asset[1], $plugin->getAssetsUrl($asset[2]));
                 break;
 
                 default:
@@ -115,7 +119,7 @@ abstract class AdminPage {
             wp_die(__('You do not have sufficient permissions to access this page.'));
         }
 
-        $this->plugin->render($this->template, array_merge($this->templateVars, [
+        $this->container->get('plugin')->render($this->template, array_merge($this->templateVars, [
             'messagesSlug' => "$this->pageSlug-messages",
         ]));
     }
@@ -138,10 +142,12 @@ abstract class AdminPage {
         // Call the appropriate WP function.
         switch ($this->menuParent) {
             case 'settings':
+                // Add an entry under the 'Settings' top-level entry.
                 call_user_func_array('add_options_page', $args);
             break;
 
             case null:
+                // Add a top-level entry.
                 if ($this->icon !== null) {
                     $args[] = $this->icon;
                 }
@@ -149,6 +155,7 @@ abstract class AdminPage {
             break;
 
             default:
+                // Add an entry under the top-level entry with the given slug.
                 array_unshift($args, $this->menuParent);
                 call_user_func_array('add_submenu_page', $args);
         }
@@ -160,7 +167,6 @@ abstract class AdminPage {
 
     // Refactor after here -------------------------------------------------------------------------
 
-    protected $settingsGroups = [];
     protected $groups = [];
 
     public function addSections(): void {
@@ -183,12 +189,13 @@ abstract class AdminPage {
      * - `string 'title'` HTML for the section's title.
      */
     protected function addFields() {
+        $plugin = $this->container->get('plugin');
         foreach ($this->sections ?? [] as $section) {
             foreach ($section['fields'] ?? [] as $field) {
                 // Group names by option group and prefix.
                 $group = $field['option'] = $field['option'] ?? $section['option'];
                 $this->groups[$group] = true;
-                $group = $this->plugin->slugify($group, '_');
+                $group = $plugin->slugify($group, '_');
                 $field['name'] = "{$group}[{$field['key']}]";
 
                 // Use label_for in preference to id (since WP 4.6).
@@ -203,28 +210,12 @@ abstract class AdminPage {
                 );
             }
         }
-        // Should refactor the whole thing to better integrate the settings and options APIs.
+
+        // Register all the options groups for the form nonce.
         foreach (array_keys($this->groups) as $group) {
-            $optionName = $this->plugin->slugify($group, '_');
-
-            $settingsGroup = $this->settingsGroups[$group] ?? null;
-
-            if ($settingsGroup) {
-                register_setting(
-                    // Option group.
-                    $this->settings['pageSlug'],
-                    // Option name.
-                    $optionName,
-                    [
-                        'type' => 'array',
-                        'sanitize_callback' => $settingsGroup['validate'],
-                    ]
-                );
-            } else {
-                register_setting($this->pageSlug, $optionName);
-            }
-
-            $this->values[$group] = get_option($optionName);
+            $optionsGroup = $this->container->get($group);
+            $optionsGroup->registerSettingsForm($this->pageSlug);
+            $this->values[$group] = $optionsGroup->all();
         }
     }
 

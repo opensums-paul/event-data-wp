@@ -17,8 +17,6 @@ namespace EventData;
  */
 class Plugin extends WpPlugin\Plugin {
     // --- YOU MUST OVERRIDE THESE IN THE PLUGIN CLASS -------------------------
-    /** @var string Name of the admin class. */
-    protected $adminClass = Admin::class;
 
     /** @var string Plugin human name. */
     protected $name = 'Event Data';
@@ -29,10 +27,17 @@ class Plugin extends WpPlugin\Plugin {
     /** @var string Current version. */
     protected $version = '0.1.0-dev';
 
+    /** @var string[] Admin page class names. */
     protected $adminPages = [
         DataPage::class,
         SettingsPage::class,
         SecretsPage::class,
+    ];
+
+    /** @var string[] Option groups. */
+    protected $optionsGroups = [
+        'options' => Options::class,
+        'secrets' => SecretOptions::class,
     ];
     // -------------------------------------------------------------------------
 };

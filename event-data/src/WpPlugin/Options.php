@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ApiData\WpPlugin;
 
+use ApiData\WpPlugin\Plugin;
+
 /**
  * Abstraction for the wp_options API.
  *
@@ -23,34 +25,23 @@ namespace ApiData\WpPlugin;
  */
 class Options {
 
-    /** @var string snake_cased option_name for the wp_options table. */
-    protected $wpOptionName;
+    /** @var string[] Dirty entries. */
+    protected $dirty = [];
+
+    /** @var string Parent plugin. */
+    protected $plugin;
+
+    /** @var mixed[] Values for entries that have been loaded. */
+    protected $values = [];
 
     /**
      * Constructor.
      *
      * @param Plugin $plugin The plugin that owns the options.
-     * @param string $name   A name for the set of options.
      */
-    public function __construct($plugin, $name) {
-        // Save a snake_case version of the plugin slug.
-        $this->wpOptionName = $plugin->slugify(str_to_lower($name), '_');
-    }
-
-    // Refactor after here -----------------------------------------------------
-
-    /** @var string[] Dirty entries. */
-    protected $dirty = [];
-
-    /** @var mixed[] Values for entries that have been loaded. */
-    protected $values = [];
-
-
-    /**
-     * Destructor.
-     */
-    public function __destruct() {
-        $this->flush();
+    public function __construct(Plugin $plugin) {
+        $this->plugin = $plugin;
+        // $this->wpOptionName = $plugin->slugify(str_to_lower($name), '_');
     }
 
     /**
@@ -59,8 +50,48 @@ class Options {
      * @param bool $loaded Iff true returns only loaded entries
      * @return mixed[] The entry values
      */
-    public function all(): array {
-        return $this->values;
+    public function all(string $group) {
+        if (!array_key_exists($group, $this->values)) {
+            if (!$this->loadGroup($group)) return null;
+        }
+        return $this->values[$group];
+    }
+
+    /**
+     * 
+     * Get the value of an entry.
+     *
+     * @param  string $group   The name of the settings group
+     * @param  string $key     The key
+     * @param  mixed  $default Default value
+     * @return mixed  The value or the default value if the entry does not exist
+     */
+    public function get(string $group, string $key, $default = null) {
+        if (!array_key_exists($group, $this->values)) {
+            $this->loadGroup($group);
+        }
+        if (array_key_exists($key, $this->values[$group])) {
+            return $this->values[$group][$key];
+        }
+        return $default;
+    }
+
+    /** Create a wp_options entry with optional autoload. */
+    protected function addGroup(string $group, bool $autoload = false) {
+        \add_option($this->plugin->slugify($group, '_'), [], null, $autoload);
+    }
+
+    protected function loadGroup($group) {
+        \get_option($this->plugin->slugify($group, '_'));
+    }
+
+    // Refactor after here -----------------------------------------------------
+
+    /**
+     * Destructor.
+     */
+    public function __destruct() {
+        $this->flush();
     }
 
     /**
@@ -76,21 +107,6 @@ class Options {
             $this->dirty = [];
         }
         return $this;
-    }
-
-    /**
-     * 
-     * Get the value of an entry.
-     *
-     * @param  string $key     The key
-     * @param  mixed  $default Default value
-     * @return mixed  The value or the default value if the entry does not exist
-     */
-    public function get($key, $default = null) {
-        if (array_key_exists($key, $this->values)) {
-            return $this->values[$key];
-        }
-        return $default;
     }
 
     /**
@@ -139,23 +155,6 @@ class Options {
         $this->dirty[$key] = false;
         $this->wpOptionDelete($key);
         return $this;
-    }
-
-    /**
-     * Convert a string to snake case.
-     */
-    protected function kebabCaseToSnakeCase(string $key): string {
-        return str_replace('-', '_', $key);
-    }
-
-    /** Create a wp_options entry with optional autoload. */
-    protected function wpOptionCreate(string $name, $value, bool $autoload = false) {
-        \add_option("{$this->wpPrefix}$name", $value, null, $autoload);
-    }
-
-    /** Get a wp_options entry. */
-    protected function wpOptionRetrieve(string $name) {
-        \get_option("{$this->wpPrefix}$name");
     }
 
     /** Update a wp_options entry. */

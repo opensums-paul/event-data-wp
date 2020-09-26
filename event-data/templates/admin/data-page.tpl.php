@@ -12,7 +12,10 @@
 $span = '<span style="font-family: Consolas, Monaco, monospace; background: rgba(0,0,0,0.07); padding: 0 4px;">';
 $sc1 = '[tt-plus]';
 
-$api = \TTPlusPlugin\TicketTailorApi::instance();
+$settings = get_option('event_data_secrets');
+$api = new \EventData\TicketTailor\Api([
+    'api-key' => $settings['ticket-tailor-api-key'],
+]);
 $data = $api->getEvents();
 $tickets = $api->getEventTickets('ev_410363');
 ?>
