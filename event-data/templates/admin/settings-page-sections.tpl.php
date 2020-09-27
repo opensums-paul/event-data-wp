@@ -8,7 +8,9 @@
  * @license   MIT
  */
 
-declare(strict_types=1);
+// Prevent direct access.
+defined('ABSPATH') || exit;
+
 ?>
 
 <?php if ($id === 'intro'): ?>

@@ -28,7 +28,7 @@ class Plugin extends WpPlugin\Plugin {
     protected $slug = 'event-data';
 
     /** @var string Current version. */
-    protected $version = '0.1.0-dev';
+    protected $version = '1.0.0';
 
     /** @var string[] Admin page class names. */
     protected $adminPages = [

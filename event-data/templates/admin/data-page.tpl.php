@@ -8,7 +8,8 @@
  * @license   MIT
  */
 
-declare(strict_types=1);
+// Prevent direct access.
+defined('ABSPATH') || exit;
 
 $span = '<span style="font-family: Consolas, Monaco, monospace; background: rgba(0,0,0,0.07); padding: 0 4px;">';
 $sc1 = '[tt-plus]';
@@ -18,16 +19,15 @@ $api = new \EventData\TicketTailor\Api([
     'api-key' => $settings['ticket-tailor-api-key'],
 ]);
 $data = $api->getEvents();
-$tickets = $api->getEventTickets('ev_410363');
+// $tickets = $api->getEventTickets('ev_410363');
 
 ?>
 
 <div class="wrap">
-
 <?php settings_errors() ?>
-
 <h1><?php echo get_admin_page_title() ?></h1>
 
+<?php /*
 <h2>Getting started</h2>
 
 <p>
@@ -45,7 +45,8 @@ do_settings_sections($pageSlug);
 ?>
 <?php submit_button('Save settings'); ?>
 </form>
-
+*/
+?>
 <p>
 List some events here.
 </p>
@@ -95,7 +96,6 @@ Use the shortcode <?php echo($span.$sc1) ?></span> to do something.
 <div id="tickets-table">Table goes here</div>
 <pre>
 <?php /* echo(json_encode($tickets, JSON_PRETTY_PRINT)); */ ?>
-<?php print_r($results); ?>
 </pre>
 <script>
 //define data array

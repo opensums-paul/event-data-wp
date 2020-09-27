@@ -8,14 +8,13 @@
  * @license   MIT
  */
 
-declare(strict_types=1);
+// Prevent direct access.
+defined('ABSPATH') || exit;
 
 ?>
 
 <div class="wrap">
-
 <?php settings_errors() ?>
-
 <h1><?php echo get_admin_page_title() ?></h1>
 
 <form action="options.php" method="post">
