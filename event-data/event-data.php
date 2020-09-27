@@ -1,34 +1,23 @@
 <?php
 /**
- * The plugin bootstrap file
- *
- * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
- * registers the activation and deactivation functions, and defines a function
- * that starts the plugin.
- *
- * @link              http://example.com
- * @package           event-data-wp
- *
- * @wordpress-plugin
- * Plugin Name:       Event Data
- * Plugin URI:        http://example.com/plugin-name-uri/
- * Description:       Integrate data from various APIs.
- * Version:           0.1.0-dev
- * Author:            OpenSums
- * Author URI:        https://opensums.com/
- * License:           MIT
- * License URI:       https://github.com/opensums/event-data-wp/LICENSE.md
- * Text Domain:       event-data
- * Domain Path:       /languages
- */
-/**
  * This file is part of the Event Data plugin for WordPress™.
  *
  * @link      https://github.com/opensums/event-data-wp
  * @package   event-data-wp
  * @copyright [OpenSums](https://opensums.com/)
  * @license   MIT
+ *
+ * @wordpress-plugin
+ * Plugin Name:       Event Data
+ * Plugin URI:        http://github.com/opensums/event-data-wp/
+ * Description:       Integrate data from various APIs.
+ * Version:           1.0.0
+ * Author:            OpenSums
+ * Author URI:        https://opensums.com/
+ * License:           MIT
+ * License URI:       https://github.com/opensums/event-data-wp/LICENSE
+ * Text Domain:       event-data
+ * Domain Path:       /languages
  */
 
 namespace EventData;
