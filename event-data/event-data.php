@@ -42,6 +42,8 @@ spl_autoload_register(function ($class) {
         'plugin' => Plugin::class,
         'secrets' => SecretOptions::class,
         'options' => Options::class,
+        'ticket-tailor' => TicketTailor\Api::class,
+        'routes' => Routes::class,
     ])
     ->get('plugin')
     ->load();

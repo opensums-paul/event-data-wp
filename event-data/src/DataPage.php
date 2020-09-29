@@ -18,9 +18,12 @@ use EventData\WpPlugin\AdminPage;
  */
 class DataPage extends AdminPage {
 
+    // Autoload these on admin pages.
     protected $assets = [
         [ 'style', 'tabulator-css', 'tabulator.min.css' ],
         [ 'script', 'tabulator', 'tabulator.min.js' ],
+        [ 'script', 'event-data', 'event-data.js' ],
+        // [ 'script', 'wp-api', null ],
     ];
 
     // protected $capability = 'event_data_view_data';
@@ -33,4 +36,12 @@ class DataPage extends AdminPage {
     protected $pageTitle = 'Event Data';
 
     protected $template = 'admin/data-page';
+
+    protected function prepare(): array {
+        $api = $this->container->get('ticket-tailor');
+        return [
+            'data' => $api->getEvents(),
+            'tickets' => $api->getEventTickets('ev_410363'),
+        ];
+    }
 }

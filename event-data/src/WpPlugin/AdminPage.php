@@ -86,6 +86,9 @@ abstract class AdminPage {
         $this->addMenuEntry();
         add_action('admin_enqueue_scripts', [$this, 'addAssets']);
         add_action('admin_init', [$this, 'addSections']);
+
+        // Initialize.
+        $this->init();
     }
 
     /**
@@ -109,7 +112,11 @@ abstract class AdminPage {
                 break;
 
                 case 'script':
-                    wp_enqueue_script($asset[1], $plugin->getAssetsUrl($asset[2]));
+                    if ($asset[2] === null) {
+                        wp_enqueue_script($asset[1]);
+                    } else {
+                        wp_enqueue_script($asset[1], $plugin->getAssetsUrl($asset[2]));
+                    }
                 break;
 
                 default:
@@ -127,12 +134,20 @@ abstract class AdminPage {
             wp_die(__('You do not have sufficient permissions to access this page.'));
         }
 
-        $this->container->get('plugin')->render($this->template, array_merge($this->templateVars, [
-            'messagesSlug' => "$this->pageSlug-messages",
-        ]));
+        $pageVars = $this->prepare();
+
+        $this->container->get('plugin')->render($this->template, array_merge(
+            $this->templateVars,
+            [
+                'messagesSlug' => "$this->pageSlug-messages",
+            ],
+            $pageVars
+        ));
     }
 
     // Protected methods ---------------------------------------------------------------------------
+
+    protected function init() {}
 
     /**
      * Add a admin menu entry for the page.
@@ -170,6 +185,13 @@ abstract class AdminPage {
     }
 
     protected function getSections() {
+        return [];
+    }
+
+    /**
+     * Prepare data for rendering.
+     */
+    protected function prepare(): array {
         return [];
     }
 

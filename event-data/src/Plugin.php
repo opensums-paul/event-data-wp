@@ -43,4 +43,12 @@ class Plugin extends WpPlugin\Plugin {
         'secrets' => SecretOptions::class,
     ];
     // -------------------------------------------------------------------------
+
+    public function restApi() {
+        $this->container->get('routes')->register();
+    }
+
+    protected function childLoad() {
+        add_action('rest_api_init', [$this, 'restApi']);
+    }
 };

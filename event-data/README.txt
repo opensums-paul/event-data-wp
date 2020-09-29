@@ -3,6 +3,7 @@ Contributors: opensums
 Tags: ticket tailor, events, sailing
 Requires at least: 5.4
 Tested up to: 5.5.1
+Requires PHP: 7.1
 License: MIT
 License URI: https://github.com/opensums/event-data-wp/LICENSE
 

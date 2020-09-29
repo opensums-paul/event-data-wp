@@ -1,84 +1,63 @@
 <?php
+/**
+ * This file is part of the Event Data plugin for WordPress™.
+ *
+ * @link      https://github.com/opensums/event-data-wp
+ * @package   event-data-wp/ticket-tailor
+ * @copyright [OpenSums](https://opensums.com/)
+ * @license   MIT
+ */
+
+declare(strict_types=1);
 
 namespace EventData\TicketTailor;
-/*
-$headers = array(
-    'Accept' => 'application/json',
-    'Authorization' => 'Basic ' . base64_encode(API_KEY),
-    // 'Authorization' => 'Basic sk_289_86336_98dfaca44861239330cccdae1dd1582f:',
-);
-$request_body = [];
-$client = new \GuzzleHttp\Client(['base_uri' => 'https://api.tickettailor.com/']);
-// Define array of request body. $request_body = array();
-try {
-    $response = $client->request('GET','/v1/orders', array(
-        'headers' => $headers,
-        'json' => $request_body,
-      )
-    );
-    header('Content-Type: application/json');
-    print_r($response->getBody()->getContents());
-} catch (\GuzzleHttp\Exception\BadResponseException $e) {
-    // handle exception or api errors.
-    print_r($e->getMessage());
-}
-*/
 
 class Api {
+    /** @var Container Dependencies. */
+    protected $container; 
+
+    /** @var mixed[] Settings. */
     protected $settings;
 
-    protected $url = 'https://api.tickettailor.com';
+    /** @var string API URL. */
+    protected $url = 'https://api.tickettailor.com/v1';
 
-    protected static $instance;
-
-    public function __construct($settings) {
-        $this->settings = $settings;
-        self::$instance = $this;
+    public function __construct($container) {
+        $this->container = $container;
+        $wp = $container->get('wp');
+        $secrets = $wp->getOption('event_data_secrets');
+        $this->settings = [
+            'api-key' => $secrets['ticket-tailor-api-key'],
+        ];
     }
 
-    public static function instance() {
-        return self::$instance;
-    }
-
+    /**
+     * Get a collection of events.
+     */
     public function getEvents() {
-        $headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'Basic ' . base64_encode($this->settings['api-key']),
-        ];
-        $req = wp_remote_get("$this->url/v1/events", [
-            'headers' => $headers,
-        ]);
-        if (wp_remote_retrieve_response_code($req) !== 200) {
-            return [
-                [
-                    'error' => $req,
-                ],
-            ];
-        }
-        $data = json_decode(wp_remote_retrieve_body($req), true);
+        $data = $this->apiRequest('/events');
         return [
             'events' => $data['data'],
         ];
     }
 
+    /**
+     * Get a collection of tickets for an event.
+     */
     public function getEventTickets($eventId) {
-        $headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'Basic ' . base64_encode($this->settings['api-key']),
-        ];
-        $req = wp_remote_get("$this->url/v1/issued_tickets?event_id=$eventId", [
-            'headers' => $headers,
-        ]);
-        if (wp_remote_retrieve_response_code($req) !== 200) {
-            return [
-                [
-                    'error' => $req,
-                ],
-            ];
-        }
-        $data = json_decode(wp_remote_retrieve_body($req), true);
+        $data = $this->apiRequest("/issued_tickets?event_id=$eventId");
         return [
-            'events' => $data['data'],
+            'tickets' => $data['data'],
         ];
+    }
+
+    protected function apiRequest($path) {
+        return $this->container->get('wp')->jsonRequest([
+            'url' => $this->url,
+            'path' => $path,
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode($this->settings['api-key']),
+            ]
+        ]);
     }
 }
