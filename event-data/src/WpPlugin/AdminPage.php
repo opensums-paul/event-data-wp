@@ -108,15 +108,18 @@ abstract class AdminPage {
         foreach ($this->assets as $asset) {
             switch ($asset[0]) {
                 case 'style':
+                    // Add stylesheet to head.
                     wp_enqueue_style($asset[1], $plugin->getAssetsUrl($asset[2]));
                 break;
 
+                case 'head':
+                    // Add js to head.
+                    wp_enqueue_script($asset[1], $plugin->getAssetsUrl($asset[2]));
+                break;
+
                 case 'script':
-                    if ($asset[2] === null) {
-                        wp_enqueue_script($asset[1]);
-                    } else {
-                        wp_enqueue_script($asset[1], $plugin->getAssetsUrl($asset[2]));
-                    }
+                    // Add js to the bottom of the page.
+                    wp_enqueue_script($asset[1], $plugin->getAssetsUrl($asset[2]), [], false, true);
                 break;
 
                 default:
